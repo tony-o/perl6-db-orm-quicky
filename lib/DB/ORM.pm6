@@ -1,5 +1,4 @@
-
-use MiniDBI;
+use DBIish;
 use DB::ORM::Model;
 
 class DB::ORM {
@@ -7,23 +6,29 @@ class DB::ORM {
   has $!driver;
    
   method connect(:$driver, :%options) {
-    $!db     = MiniDBI.connect($driver, |%options, :RaiseError<1>);
+    $!db     = DBIish.connect($driver, |%options, :RaiseError<1>);
     $!driver = $driver;
   }
 
   method create($table) {
-    my $sth = $!db.prepare('select 
-                              column_name as n, data_type as t, 
-                              character_maximum_length as l
-                            from 
-                              INFORMATION_SCHEMA.COLUMNS 
-                            where table_name = ?');
-    $sth.execute($table);
-    my %columns;
-    while (my $row = $sth.fetchrow_hashref) {
-      %columns{$row<n>} = $row<t>;
-    }
-    my $model = DB::ORM::Model.new(:columns(%columns), :dbtype($!driver), :$table, :$!db);
+    my $model = DB::ORM::Model.new(:dbtype($!driver), :$table, :$!db);
     return $model;
+  }
+
+  method search($table, %search) {
+    my $sql = '';
+    my @val;
+    for %search.keys -> $key {
+      $sql ~= 'WHERE ' if $sql eq '';
+      $sql ~= "\"$key\" = ? ";
+      @val.push(self!processtosql(%search, $key)); 
+    }
+    $sql = "SELECT * FROM \"$table\" $sql";
+    $sql.say;
+    @val.join(", ").say;
+  }
+
+  method !processtosql(%search, $key) {
+     return %search{$key};
   }
 };

@@ -25,6 +25,10 @@ $nickl.set({
   someothernumber => 6, 
   somestring => 'str',
   numb => 5,
+  play => 'convert to str',
+  id   => 5000,
 });
 
 $nickl.save;
+
+my $samenickl = $orm.search('nickl', { DBORMID => $nickl.id });
