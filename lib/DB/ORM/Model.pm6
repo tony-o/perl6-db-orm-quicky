@@ -6,7 +6,7 @@ class DB::ORM::Model {
   has $!table;
   has %!data;
   has @!changed;
-  has $.id;
+  has $.id is rw;
 
   submethod BUILD (:$dbtype, :$!db, :$!table) {
     $!dbtype := $dbtype;
@@ -29,6 +29,10 @@ class DB::ORM::Model {
           )
        },
     ;
+  }
+
+  method get($key) {
+    return %!data{$key};
   }
 
   method set(%data) {

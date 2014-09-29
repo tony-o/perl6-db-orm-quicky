@@ -32,3 +32,6 @@ $nickl.set({
 $nickl.save;
 
 my $samenickl = $orm.search('nickl', { DBORMID => $nickl.id });
+my @d         = $samenickl.all;
+
+@d[0].get('someothernumber').say;

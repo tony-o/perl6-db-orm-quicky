@@ -1,5 +1,6 @@
 use DBIish;
 use DB::ORM::Model;
+use DB::ORM::Search;
 
 class DB::ORM {
   has $!db;
@@ -16,19 +17,7 @@ class DB::ORM {
   }
 
   method search($table, %search) {
-    my $sql = '';
-    my @val;
-    for %search.keys -> $key {
-      $sql ~= 'WHERE ' if $sql eq '';
-      $sql ~= "\"$key\" = ? ";
-      @val.push(self!processtosql(%search, $key)); 
-    }
-    $sql = "SELECT * FROM \"$table\" $sql";
-    $sql.say;
-    @val.join(", ").say;
-  }
-
-  method !processtosql(%search, $key) {
-     return %search{$key};
+    my $search = DB::ORM::Search.new(:dbtype($!driver), :$table, :$!db, :%search);
+    return $search;
   }
 };
