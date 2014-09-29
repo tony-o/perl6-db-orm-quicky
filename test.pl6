@@ -35,3 +35,7 @@ my $samenickl = $orm.search('nickl', { DBORMID => $nickl.id });
 my @d         = $samenickl.all;
 
 @d[0].get('someothernumber').say;
+
+my @testcount = $orm.search('nickl', { play => 'convert to str', somestring => 'str' }).all;
+
+"{@testcount.elems} count".say;
