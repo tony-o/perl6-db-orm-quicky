@@ -6,7 +6,7 @@ class DB::ORM::Quicky::Model {
   has $!table;
   has %!data;
   has @!changed;
-  has $.id is rw;
+  has $.id is rw = -1;
   has $!quote;
 
   submethod BUILD (:$!dbtype, :$!db, :$!table, :$!quote = '', :$skipcreate = False) {
@@ -97,6 +97,18 @@ class DB::ORM::Quicky::Model {
     }
   }
 
+  method delete {
+    my $sql = "DELETE FROM {self!fquote($!table)} WHERE {self!fquote('DBORMID')} = ?";
+    my $sth = $!db.prepare($sql);
+    $sth.execute($!id);
+    $sth.finish if $sth.^can('finish');
+    $!id = -1;
+    for %!data.keys -> $k {
+      next if "$k".uc eq 'DBORMID';
+      @!changed.push("$k");
+    }
+  }
+
   method save {
     return if @!changed.elems == 0;
     my %types;
@@ -146,7 +158,7 @@ class DB::ORM::Quicky::Model {
       self!sqlitemodcolumns(%types, %modcols);
     }
     #build insert
-    if !defined $!id {
+    if !defined($!id) || $.id == -1 {
       try {
         $!db.do("ALTER TABLE {self!fquote($!table)} ADD COLUMN {self!fquote('DBORMID')} integer;");
       };
