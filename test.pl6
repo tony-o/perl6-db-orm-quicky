@@ -2,40 +2,50 @@
 
 use lib 'lib';
 
-use DB::ORM;
+use DB::ORM::Quicky;
 
-my $orm = DB::ORM.new;
+my $orm = DB::ORM::Quicky.new;
 
 $orm.connect(
   driver  => 'Pg', 
   options => %( 
     host     => 'localhost',
     port     => 5432,
-    database => 'jobs',
+    database => 'tony',
     user     => 'tony',
     password => '', 
   )
 );
 
-my $nickl = $orm.create('nickl');
+my $username = '';
 
-$nickl.set({ somenumber => 5 });
+$username ~= chr((65 .. 90).pick) for 0 .. 10;
 
-$nickl.set({
-  someothernumber => 6, 
-  somestring => 'str',
-  numb => 5,
-  play => 'convert to str',
-  id   => 5000,
+$username.say;
+my $newrow = $orm.create('nickl');
+
+$newrow.set('username' => $username);
+$newrow.set('password' => 'tony');
+$newrow.set('joined' => time);
+$newrow.save;
+
+
+my $tests = $orm.search('nickl', { 
+  '-and' => [
+    '-raw' => ('"joined" > ? - 5000' => 50)
+  ]
 });
 
-$nickl.save;
+for @($tests.all) -> $user {
+  say 'test1: ' ~ $user.get('username');
+}
 
-my $samenickl = $orm.search('nickl', { DBORMID => $nickl.id });
-my @d         = $samenickl.all;
+my $test2 = $orm.search('nickl', { 
+  '-and' => [
+    joined => ('-gt' => 50 - 5000)
+  ]
+});
 
-@d[0].get('someothernumber').say;
-
-my @testcount = $orm.search('nickl', { play => 'convert to str', somestring => 'str' }).all;
-
-"{@testcount.elems} count".say;
+for @($test2.all) -> $user {
+  say 'test2: ' ~ $user.get('username');
+}
