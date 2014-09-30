@@ -7,21 +7,28 @@ class DB::ORM::Quicky::Search {
   has $.db;
   has $.dbtype;
   has $.error is rw;
+  has $!quote = '';
 
   method all {
     self.search if !defined $!sth;
     return Nil if $.error !~~ Any;
     my @rows;
     while my $row = $!sth.fetchrow_hashref {
-      my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype);
+      my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :skipcreate(True));
       $n.set(%($row));
       $n.id = $row<DBORMID>;
       @rows.push($n);
     }
+    $.sth.finish if $.sth.^can('finish');
+
     return @rows;
   }
 
+  method !fquote($str) { return $!quote ~ $str ~ $!quote; }
+
   method search() {
+    $!quote = '`' if $!quote eq '' && $!dbtype eq 'mysql';
+    $!quote = '"' if $!quote eq '';
     my $sql = '';
     my @val;
     for %!params.keys -> $key {
@@ -34,7 +41,7 @@ class DB::ORM::Quicky::Search {
       $sql ~= %ret<sql>;
       @val.push($_) for @(%ret<val>); 
     }
-    $sql = "SELECT * FROM \"$.table\" $sql";
+    $sql = "SELECT * FROM {self!fquote($.table)} $sql";
     DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype);
     my $rval = False;
     try {
@@ -73,7 +80,7 @@ class DB::ORM::Quicky::Search {
     } elsif %params{$key} ~~ Array {
       $str ~= '(';
       for @(%params{$key}) -> $v {
-        $str ~= "\"$key\" = ? OR ";
+        $str ~= "{self!fquote($key)} = ? OR ";
         @val.push($v);
       }
       $str ~~ s/'OR ' $/)/;
@@ -92,10 +99,10 @@ class DB::ORM::Quicky::Search {
       } elsif %params{$key} ~~ Pair && %params{$key}.key.lc eq ('-gt','-lt','-eq').any {
         my $op = %params{$key}.key.lc;
         $op = $op eq '-gt' ?? '>' !! $op eq '-lt' ?? '<' !! '=';
-        $str ~= "\"$key\" $op ?"; 
+        $str ~= "{self!fquote($key)} $op ?"; 
         @val.push(%params{$key}.value);
       } else { 
-        $str ~= "\"$key\" = ? ";
+        $str ~= "{self!fquote($key)} = ? ";
         @val.push(%params{$key});
       }
     }
