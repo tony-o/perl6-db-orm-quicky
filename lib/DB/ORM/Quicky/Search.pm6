@@ -10,7 +10,7 @@ class DB::ORM::Quicky::Search {
   has $!quote = '';
 
   method all {
-    self.search if !defined $!sth;
+    self.search;
     return Nil if $.error !~~ Any;
     my @rows;
     while my $row = $!sth.fetchrow_hashref {

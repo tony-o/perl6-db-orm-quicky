@@ -9,7 +9,7 @@ my $orm = DB::ORM::Quicky.new;
 $orm.connect(
   driver  => 'SQLite', 
   options => %( 
-    database => 'local',
+    database => 'local.sqlite3',
   )
 );
 
