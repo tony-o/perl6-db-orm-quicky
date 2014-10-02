@@ -100,3 +100,15 @@ $orm.search('table', {
 });
 # SELECT * FROM table WHERE dateformat(joindate, 'YYYYMMDD') = today('YYYYMMDD'); 
 ```
+
+##Bugs, comments, feature requests? 
+
+Yes, there are probably bugs.  Put 'em in the github bugs area or catch me in #perl6 on freenode.
+
+##License
+
+Whatever, it's free.  Do what you want with it.
+
+######Other crap
+
+[@tony-o](https://www.gittip.com/tony-o/)
