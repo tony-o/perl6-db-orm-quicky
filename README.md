@@ -8,9 +8,13 @@ The DB::ORM::Quicky::Model (you'll never have to instantiate this object) degrad
 
 The model also tracks what columns were changed and *only* updates those fields.
 
+
 ##Example - CRUD (Create Read Update Delete)
 
 For the examples, I'll use SQLite and keep comments to a minimum.
+
+###Depends
+[DBIish](https://github.com/perl6/DBIish/)
 
 ###[C]rud
 
@@ -112,3 +116,4 @@ Whatever, it's free.  Do what you want with it.
 ######Other crap
 
 [@tony-o](https://www.gittip.com/tony-o/)
+
