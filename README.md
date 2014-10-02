@@ -31,7 +31,7 @@ $orm.connect(
 );
 
 #the `users` table does NOT exist yet.
-my $newuser = $orm.create('users'); 
+my $newuser = $orm.create('users'); #this is creating a new 'row', not necessarily a new table 
 
 #the `users` table exists with no columns or just a `DBORMID` 
 #  column (only in SQLite) yet.
