@@ -83,15 +83,19 @@ $orm.search('table', {
       username => ['user1', 'user2']
     },
     {
-      joindate => ['-gt' => time - 5000], # -gt and -lt both work
-    }
+      joindate => ('-gt' => time - 5000), # -gt and -lt both work
+    },
+    '-and' => [
+      rating  => 'lame',
+      decimal => ('-lt' => 50),
+    ]
   ]
 });
 # SELECT * FROM table WHERE (username = 'user1' or username = 'user2') OR (joindate > ?);
 # with ? = (time - 5000) 
 
 $orm.search('table', {
-  -raw => ' joindate = today(); '
+  -raw => ' dateformat(joindate, \'YYYYMMDD\') = today(\'YYYYMMDD\'); ' # have no idea if this is valid in sqlite
 });
-# SELECT * FROM table WHERE joindate = today();
+# SELECT * FROM table WHERE dateformat(joindate, 'YYYYMMDD') = today('YYYYMMDD'); 
 ```
