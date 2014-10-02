@@ -52,7 +52,7 @@ $newuser.save;  #at this point all required columns are checked or created
 ```perl6
 my $usersearch = $orm.search('users', { rating => 'lame' });
 
-my @users = $usersearch; #array of all users
+my @users = $usersearch; #array of all users with 'lame' rating
 
 for $usersearch->next -> $user { ... }
 
@@ -62,11 +62,11 @@ for $usersearch->next -> $user { ... }
 ###cr[U]d
 
 ```perl6
-while $usersearch->next !~~ Nil { 
-  $_.set({ 
+for $usersearch->next -> $user { 
+  $user.set({ 
     joindate => time, #decided we want to track when a user signed up
   });
-  $_.save;
+  $user.save;
 }
 ```
 
