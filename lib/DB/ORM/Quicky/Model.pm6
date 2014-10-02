@@ -83,7 +83,7 @@ class DB::ORM::Quicky::Model {
     }
   }
   
-  method !fquote($str) { return $!quote ~ $str ~ $!quote; }
+  method !fquote($str) { return "$!quote" ~ "$str" ~ "$!quote"; }
 
   method get($key) {
     return %!data{$key};
@@ -167,7 +167,7 @@ class DB::ORM::Quicky::Model {
       $idsth.execute();
       my @a = $idsth.fetchrow_array;
       $idsth.finish if $idsth.^can('finish');
-      $!id   = (@a[0] ~~ / ^ \d+ $ / ?? @a[0].Int !! 0) + 1; 
+      $!id   = (@a.elems > 0 && "{@a[0] || ''}".chars > 0 ?? @a[0].Int !! 0) + 1; 
       $idsql = "INSERT INTO {self!fquote($!table)} ({self!fquote('DBORMID')}) VALUES (?)";
       $idsth = $!db.do($idsql, $!id); 
     }
@@ -264,6 +264,7 @@ class DB::ORM::Quicky::Model {
       $sql ~= " {$type}, " if $k ne %mods.keys.any;
       $sql ~= " {%mods{$k}}, " if $k eq %mods.keys.any;
     }
+    
     $sql ~~ s/', ' $/);/;
 
     @cmd.push($sql);

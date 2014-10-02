@@ -6,8 +6,9 @@ class DB::ORM::Quicky::Search {
   has $.table;
   has $.db;
   has $.dbtype;
-  has $.error is rw;
+  has $.error is rw = Any;
   has $!quote = '';
+  has $!cursor = 0;
 
   method all {
     self.search;
@@ -20,13 +21,44 @@ class DB::ORM::Quicky::Search {
       @rows.push($n);
     }
     $.sth.finish if $.sth.^can('finish');
-
+    $!cursor = 0;
     return @rows;
+  }
+
+  method first {
+    $!cursor = 0;
+    return $.next;
+  }
+
+  has $.CC is rw = 0;
+  method next {
+    $!cursor = 0 if $!cursor !~~ / ^ \d+ $ /;
+    self.search(True);
+    return Nil if $.error !~~ Any;
+    my $row = $!sth.fetchrow_hashref;
+    my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :skipcreate(True));
+    return Nil if %($row).keys.elems == 0;
+    $n.set(%($row));
+    $n.id = $row<DBORMID>;
+    $!sth.finish if $.sth.^can('finish');
+    $!cursor++;
+    return $n;
+  }
+
+  method delete {
+    self.search(False, 'DELETE', ());
+  }
+
+  method count {
+    self.search(False, 'SELECT COUNT(*) c');
+    my $c = $!sth.fetchrow_hashref<c>;
+    $!sth.finish if $.sth.^can('finish');
+    return $c;
   }
 
   method !fquote($str) { return $!quote ~ $str ~ $!quote; }
 
-  method search() {
+  method search($index? = False, $method? = 'SELECT *', @sort? = (DBORMID => 'asc',) ) {
     $!quote = '`' if $!quote eq '' && $!dbtype eq 'mysql';
     $!quote = '"' if $!quote eq '';
     my $sql = '';
@@ -41,7 +73,18 @@ class DB::ORM::Quicky::Search {
       $sql ~= %ret<sql>;
       @val.push($_) for @(%ret<val>); 
     }
-    $sql = "SELECT * FROM {self!fquote($.table)} $sql";
+    $sql = "$method FROM {self!fquote($.table)} $sql ";
+    $sql ~= "ORDER BY " if @sort.elems > 0;
+    for @sort -> $pair {
+      $sql ~= "{self!fquote($pair.key)} {$pair.value}," if $pair ~~ Pair;
+      $sql ~= "{self!fquote($pair)}," if $pair !~~ Pair;
+    };
+    $sql ~~ s/ ',' $ / / if @sort.elems > 0;
+    if so $index {
+      $sql ~= self!postgrescursor($!cursor) if $!dbtype eq 'Pg';
+      $sql ~= self!mysqlcursor($!cursor) if $!dbtype eq 'mysql';
+      $sql ~= self!sqlite3cursor($!cursor) if $!dbtype eq 'SQLite';
+    }
     DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype);
     my $rval = False;
     try {
@@ -107,5 +150,17 @@ class DB::ORM::Quicky::Search {
       }
     }
     return { sql => $str, val => @val };
+  }
+
+  method !postgrescursor($offset, $count = 1) {
+    return "LIMIT $count OFFSET $offset";
+  }
+
+  method !mysqlcursor($offset, $count = 1) {
+    return "LIMIT $offset, $count";
+  }
+
+  method !sqlite3cursor($offset, $count = 1) {
+    return "LIMIT $offset, $count";
   }
 };
