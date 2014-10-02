@@ -50,7 +50,7 @@ my $usersearch = $orm.search('users', { rating => 'lame' });
 
 my @users = $usersearch; #array of all users
 
-while $usersearch->next !~~ Nil { ... }
+for $usersearch->next -> $user { ... }
 
 "User count: {$usersearch.count}".say;
 ```
