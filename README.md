@@ -95,7 +95,8 @@ $orm.search('table', {
 # with ? = (time - 5000) 
 
 $orm.search('table', {
-  -raw => ' dateformat(joindate, \'YYYYMMDD\') = today(\'YYYYMMDD\'); ' # have no idea if this is valid in sqlite
+  -raw => ' dateformat(joindate, \'YYYYMMDD\') = today(\'YYYYMMDD\'); ' 
+  # have no idea if this is valid in sqlite
 });
 # SELECT * FROM table WHERE dateformat(joindate, 'YYYYMMDD') = today('YYYYMMDD'); 
 ```
