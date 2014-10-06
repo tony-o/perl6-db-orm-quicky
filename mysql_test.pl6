@@ -19,7 +19,7 @@ $orm.connect(
 
 my $username = '';
 
-$username ~= chr((65 .. 90).pick) for 0 .. 10;
+$username = [~] ("a".."z").roll(10);
 
 $username.say;
 my $newrow = $orm.create('nickl');

@@ -17,7 +17,7 @@ $orm.connect(
 
 my $username = '';
 
-$username ~= chr((65 .. 90).pick) for 0 .. 10;
+$username = [~] ("a".."z").roll(10);
 
 my $newrow = $orm.create('nickl');
 
@@ -60,8 +60,7 @@ ok @($orm.search('nickl', { '-and' => [ 'username' => $username, joined => ('-gt
 
 my @names;
 for 0 .. 10 {
-  $username = '';
-  $username ~= chr((65 .. 90).pick) for 0 .. 10;
+  $username = [~] ("a".."z").roll(10);
   @names.push($username);
   my $row = $orm.create('nickl');
   $row.set({username => $username});
