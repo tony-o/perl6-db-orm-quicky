@@ -4,16 +4,25 @@ use lib 'lib';
 use Test;
 use DB::ORM::Quicky;
 
-plan 12;
+#plan 12;
 
 my $orm = DB::ORM::Quicky.new;
+
+my $optout;
 
 $orm.connect(
   driver  => 'SQLite', 
   options => %( 
     database => 'local.sqlite3',
   )
-);
+) or $optout = 1;
+
+if $optout == 1 { 
+  plan 1;
+  ok 1==1,'Able to \'use\'';
+  exit;
+}
+plan 12;
 
 my $username = '';
 
