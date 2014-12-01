@@ -8,16 +8,22 @@ use DB::ORM::Quicky;
 
 my $orm = DB::ORM::Quicky.new;
 
-my $optout;
+my $optout = 0;
 
-$orm.connect(
-  driver  => 'SQLite', 
-  options => %( 
-    database => 'local.sqlite3',
-  )
-) or $optout = 1;
+try {
+  $orm.connect(
+    driver  => 'SQLite', 
+    options => %( 
+      database => './sqlite.sqlite3',
+    )
+  );
+  $optout = 1;
+};
 
-if $optout == 1 { 
+$optout.say;
+
+
+if $optout == 0 { 
   plan 1;
   ok 1==1,'Able to \'use\'';
   exit;
