@@ -139,9 +139,9 @@ class DB::ORM::Quicky::Search {
         } else {
           $str ~= %params{$key};
         }
-      } elsif %params{$key} ~~ Pair && %params{$key}.key.lc eq ('-gt','-lt','-eq').any {
+      } elsif %params{$key} ~~ Pair && %params{$key}.key.lc eq ('-gt','-lt','-eq', '-like').any {
         my $op = %params{$key}.key.lc;
-        $op = $op eq '-gt' ?? '>' !! $op eq '-lt' ?? '<' !! '=';
+        $op = $op eq '-gt' ?? '>' !! $op eq '-lt' ?? '<' !! $op eq '-like' ?? 'like' !! '=';
         $str ~= "{self!fquote($key)} $op ?"; 
         @val.push(%params{$key}.value);
       } else { 

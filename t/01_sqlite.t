@@ -4,7 +4,6 @@ use lib 'lib';
 use Test;
 use DB::ORM::Quicky;
 
-#plan 12;
 
 my $orm = DB::ORM::Quicky.new;
 
@@ -28,7 +27,7 @@ if $optout == 0 {
   ok 1==1,'Able to \'use\'';
   exit;
 }
-plan 12;
+plan 13;
 
 my $username = '';
 
@@ -46,6 +45,9 @@ ok $newrow.id == -1, 'Deleted';
 $newrow.save;
 ok $newrow.id > -1, 'AAAnnd it\'s back';
 
+ok $orm.search('nickl', {
+  password => ( '-like' => '%on%' ),
+}).first.id == $newrow.id, 'like with % works';
 
 my $tests = $orm.search('nickl', { 
   '-and' => [
