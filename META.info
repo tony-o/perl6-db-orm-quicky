@@ -1,4 +1,5 @@
 {
+  "perl" : "6.*",
   "name" : "DB::ORM::Quicky",
   "version" : "*",
   "description" : "Easy Prototyping ORM for Perl 6",
