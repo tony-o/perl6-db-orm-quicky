@@ -102,10 +102,9 @@ $orm.search('table', {
 # with ? = (time - 5000) 
 
 $orm.search('table', {
-  -raw => ' strftime(\'%Y%m%d\', joindate) = strftime(\'YYYYMMDD\', \'now\'); ' 
-  # have no idea if this is valid in sqlite
+  -raw => ' strftime(\'%Y%m%d\', joindate) = strftime(\'YYYYMMDD\', \'now\') ' 
 });
-# SELECT * FROM table WHERE dateformat(joindate, 'YYYYMMDD') = today('YYYYMMDD'); 
+# SELECT * FROM table WHERE strftime('%Y%m%d', joindate) = strftime('%Y%m%d', 'now'); 
 ```
 
 ##Bugs, comments, feature requests? 
