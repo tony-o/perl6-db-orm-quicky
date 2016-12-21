@@ -107,6 +107,45 @@ $orm.search('table', {
 # SELECT * FROM table WHERE strftime('%Y%m%d', joindate) = strftime('%Y%m%d', 'now'); 
 ```
 
+###Joining Tables
+
+```perl6
+my $orm = qw<initialize your orm as above>;
+
+#initialize some data
+my $user = $orm.create('user');
+$user.set('username', 'user1');
+$user.set('password', 'user1-pass!');
+$user.save; #$user.id is now an actual value, yay
+
+my $profile = $orm.create('profile');
+$profile.set('name', 'tim tow dee');
+$profile.set('uid', $user.id);
+$profile.save;
+
+#here we'll query them as one unit
+my @users = $orm.search('user', { #user table will be our main table
+  '-join' => {
+    '-table' => 'profile', #join the profile table to user
+    '-type'  => 'inner',   #user an inner join, the default is 'left outer'
+    '-on'    => {
+      '-and' => {
+        'uid' => 'DBORMID', #these are autoquoted where the key from the pair is quoted for the joining table and the value is quoted for the main table
+                            #you can also use things like a pair here, ie: ('-lt' => 'some other column in user table')
+      }
+    }
+  },
+  '"profile"."name"' => ('-ne' => ''), #normal 'where' parameters, notice that quoting the table and field name for the joined table *may* be necessary
+}).all;
+
+for my $user (@users) {
+  $user.get(qw<any field from either the profile or user table here>);
+}
+```
+
+Caveats, there's not a mechanism to use a raw value in the `'-on'` section of the join.  There is also only one join possible right now.  Both of those features are being worked on.
+
+
 ##Bugs, comments, feature requests? 
 
 Yes, there are probably bugs.  Put 'em in the github bugs area or catch me in #perl6 on freenode.
