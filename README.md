@@ -102,7 +102,7 @@ $orm.search('table', {
 # with ? = (time - 5000) 
 
 $orm.search('table', {
-  -raw => ' strftime(\'%Y%m%d\', joindate) = strftime(\'YYYYMMDD\', \'now\') ' 
+  -raw => ' strftime(\'%Y%m%d\', joindate) = strftime(\'%Y%m%d\', \'now\') ' 
 });
 # SELECT * FROM table WHERE strftime('%Y%m%d', joindate) = strftime('%Y%m%d', 'now'); 
 ```
