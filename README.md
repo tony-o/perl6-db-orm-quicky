@@ -134,7 +134,7 @@ my @users = $orm.search('user', { #user table will be our main table
       '-and' => {
         'uid' => 'DBORMID', #these are autoquoted where the key from the pair is quoted for the joining table and the value is quoted for the main table
                             #you can also use things like a pair here, ie: ('-lt' => 'some other column in user table')
-        'rating' => 'rating', 
+        'source' => 'source', #becomes "profile"."source" = "user"."source" in the SQL 
       }
     }
   },
