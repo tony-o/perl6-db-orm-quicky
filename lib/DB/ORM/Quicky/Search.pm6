@@ -18,7 +18,7 @@ class DB::ORM::Quicky::Search {
     return Nil if $.error !~~ Any;
     my @rows;
     while my $row = $!sth.fetchrow_hashref {
-      my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :skipcreate(True));
+      my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :skipcreate(True), :$.orm);
       $n.set(%($row));
       $n.id = $row{$.orm.default-id};
       @rows.push($n);
@@ -84,7 +84,7 @@ class DB::ORM::Quicky::Search {
       $sql ~= self!mysqlcursor($!cursor) if $!dbtype eq 'mysql';
       $sql ~= self!sqlite3cursor($!cursor) if $!dbtype eq 'SQLite';
     }
-    DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype);
+    DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :$.orm);
     my $rval = False;
     try {
       $sql.say if $!debug;
