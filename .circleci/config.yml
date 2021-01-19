@@ -11,6 +11,7 @@ jobs:
       - run: 
           name: install build deps
           command: |
+              git clone https://github.com/salortiz/NativeHelpers-Blob.git /tmp/ncb && cd /tmp/ncb && zef install --force .
               zef install --force-test -v --deps-only .
       - run:
           name: test 
