@@ -183,7 +183,7 @@ class DB::ORM::Quicky::Model {
       my $idsth = self!prepare($idsql);
       $idsth.execute();
       $idsql.say if $.debug;
-      my @a = $idsth.fetchrow_array;
+      my @a = $idsth.row(:array);
       $idsth.finish if $idsth.^can('finish');
       $!id   = (@a.elems > 0 && "{@a[0] || ''}".chars > 0 ?? @a[0].Int !! 0) + 1; 
       $idsql = "INSERT INTO {self!fquote($!table)} ({self!fquote($.orm.default-id)}) VALUES (?)";
@@ -215,7 +215,7 @@ class DB::ORM::Quicky::Model {
   method !pgtableexists {
     my $s = self!prepare('select count(*) c from pg_tables where schemaname = ? and tablename = ?');
     $s.execute(('public', $!table));
-    my $c = ($s.fetchrow_hashref)<c>;
+    my $c = ($s.row(:hash))<c>;
     $s.finish if $s.^can('finish');
     return $c > 0 ?? True !! False;
   }
@@ -225,7 +225,7 @@ class DB::ORM::Quicky::Model {
     my $sth = self!prepare('select column_name as n, data_type as t, character_maximum_length as l from INFORMATION_SCHEMA.COLUMNS where table_name = ?');
     $sth.execute($!table);
     my %columns;
-    while (my $row = $sth.fetchrow_hashref) {
+    while (my $row = $sth.row(:hash)) {
       %columns{$row<n>} = { type => $row<t>, length => $row<l> ~~ /^ \d+ $/ ?? $row<l>.Int !! -1 };
     }
 
@@ -239,7 +239,7 @@ class DB::ORM::Quicky::Model {
   method !sqlitetableexists {
     my $s = self!prepare('select count(sql) c from sqlite_master where tbl_name = ? and type = ?;');
     $s.execute(($!table, 'table'));
-    my $c = ($s.fetchrow_hashref)<c>;
+    my $c = ($s.row(:hash))<c>;
     $s.finish if $s.^can('finish');
     return $c > 0 ?? True !! False;
   }
@@ -248,7 +248,7 @@ class DB::ORM::Quicky::Model {
     my %types;
     my $sth = self!prepare('select sql from sqlite_master where tbl_name = ? and type = ?;');
     $sth.execute(($!table, 'table'));
-    my $cols = $sth.fetchrow_hashref<sql>;
+    my $cols = $sth.row(:hash)<sql>;
     $cols ~~ s/ ^ .*? '(' (.*) ')' .*? $ /$<>[0]/;
     my @column = $cols.split(/ \s* ',' \s* /);
     my %columns;
@@ -300,7 +300,7 @@ class DB::ORM::Quicky::Model {
   method !mysqltableexists {
     my $s = self!prepare('select count(*) c from information_schema.tables where table_name = ?');
     $s.execute(($!table));
-    my $c = ($s.fetchrow_hashref)<c>;
+    my $c = ($s.row(:hash))<c>;
     $s.finish if $s.^can('finish');
     return $c > 0 ?? True !! False;
   }
@@ -311,7 +311,7 @@ class DB::ORM::Quicky::Model {
     my $sth = self!prepare('select column_name as n, data_type as t, character_maximum_length as l from INFORMATION_SCHEMA.COLUMNS  where table_name = ?');
     $sth.execute($!table);
     my %columns;
-    while (my $row = $sth.fetchrow_hashref) {
+    while (my $row = $sth.row(:hash)) {
       %columns{$row<n>} = { type => $row<t>, length => ($row<l>//'') ~~ /^ \d+ $/ ?? $row<l>.Int !! -1 };
     }
 

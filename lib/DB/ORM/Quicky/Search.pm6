@@ -17,7 +17,7 @@ class DB::ORM::Quicky::Search {
     self.search;
     return Nil if $.error !~~ Any;
     my @rows;
-    while my $row = $!sth.fetchrow_hashref {
+    while my $row = $!sth.row(:hash) {
       my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :skipcreate(True), :$.orm);
       $n.set(%($row));
       $n.id = $row{$.orm.default-id};
@@ -38,7 +38,7 @@ class DB::ORM::Quicky::Search {
     $!cursor = 0 if $!cursor !~~ / ^ \d+ $ /;
     self.search(True);
     return Nil if $.error !~~ Any;
-    my $row = $!sth.fetchrow_hashref;
+    my $row = $!sth.row(:hash);
     my $n = DB::ORM::Quicky::Model.new(:$.table, :$.db, :$.dbtype, :skipcreate(True), :$.orm);
     return Nil if %($row).keys.elems == 0;
     $n.set(%($row));
@@ -54,7 +54,7 @@ class DB::ORM::Quicky::Search {
 
   method count {
     self.search(False, 'SELECT COUNT(*) c');
-    my $c = $!sth.fetchrow_hashref<c>;
+    my $c = $!sth.row(:hash)<c>;
     $!sth.finish if $.sth.^can('finish');
     return $c;
   }
