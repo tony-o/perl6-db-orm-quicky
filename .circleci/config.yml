@@ -11,7 +11,7 @@ jobs:
       - run: 
           name: install build deps
           command: |
-              zef install --deps-only .
+              zef install --force-test -v --deps-only .
       - run:
           name: test 
           command: |
